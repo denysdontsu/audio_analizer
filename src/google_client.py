@@ -229,16 +229,16 @@ def get_data_from_sheet(
     return [row for row in data.get('values', []) if row]
 
 
-def get_unprocessed_audio_ids(
+def get_unprocessed_audio(
         drive_service,
         sheets_service,
         source_folder_id,
         sheets_id: str,
         sheets_range: str
-) -> list:
+) -> list[dict]:
     """
     Compares audio files in a Google Drive folder against names listed in a Google Sheet
-    and returns IDs of the files that are not present in the sheet.
+    and returns id and name of the files that are not present in the sheet.
 
     Args:
         drive_service: Authorized Google Drive API service instance (v3).
@@ -248,14 +248,14 @@ def get_unprocessed_audio_ids(
         sheets_range: The A1 notation range containing existing audio names.
 
     Returns:
-        list[str]: A list of Google Drive file IDs for unprocessed audio files.
+        list[dict]: Each dict contains 'id' and 'name' keys.
     """
     all_target_audios = get_audios(drive_service, source_folder_id)
     all_data_from_sheet = get_data_from_sheet(sheets_service, sheets_id, sheets_range)
 
     all_processed_audio = set(cell[0] for cell in all_data_from_sheet if cell[0])
 
-    return [item['id'] for item in all_target_audios if item['name'] not in all_processed_audio]
+    return [item for item in all_target_audios if item['name'] not in all_processed_audio]
 
 
 def download_audio_by_id(
