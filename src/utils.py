@@ -16,8 +16,7 @@ def parse_audio_filename(filename: str) -> dict | None:
     Returns:
         dict | None: A dictionary containing the parsed values:
             {
-                'data': str,
-                'time': str,
+                'data_time': str,
                 'number': str,
                 'call_type': str
             }
@@ -25,9 +24,10 @@ def parse_audio_filename(filename: str) -> dict | None:
     """
     fields = filename.split('_')
     if len(fields) == 4:
+        date = fields[0]
+        time = fields[1].replace('-', ':')
         parsed_name = {
-            'date': fields[0],
-            'time': fields[1],
+            'date_time': f'{date} {time}',
             'number': fields[2],
             'call_type': fields[3].replace('.mp3', '')
         }
