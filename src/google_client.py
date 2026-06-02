@@ -6,7 +6,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload
+from googleapiclient.http import MediaIoBaseDownload, MediaInMemoryUpload
 
 from config.config import SCOPES, TOKEN_PATH, CREDENTIALS_PATH
 
@@ -48,6 +48,7 @@ def get_credentials():
           token.write(creds.to_json())
 
     return creds
+
 
 def get_drive_service():
     """
@@ -109,7 +110,6 @@ def get_file_name(
         drive_service,
         source_file_id: str
 ) -> str:
-    # сделал функцию более универсальной, не привязывая конкретно к имени папки (это может быть как файл так и папка) просто получаем имя по id
     """
     Retrieves the name of a file or folder from Google Drive by its ID.
 
@@ -192,6 +192,10 @@ def copy_sheets(
 
     Returns:
         str: The ID of the newly copied Google Sheet.
+
+    Note:
+        Required by project specification. Not used in the main pipeline
+        as the target sheet is managed directly.
     """
     name = get_file_name(drive_service, source_sheets_id)
     sheets_metadata = {
@@ -285,3 +289,35 @@ def download_audio_by_id(
             status, done = downloader.next_chunk()
 
     return temp_audio_path
+
+
+def write_transcribe(
+        drive_service,
+        output_dir_id: str,
+        file_name: str,
+        file_text: str
+) -> str:
+    """
+    Uploads a transcription text file to Google Drive.
+    Creates a new `.txt` file in the specified Google Drive folder and uploads
+    the provided text content.
+
+    Args:
+        drive_service: Authenticated Google Drive service instance.
+        output_dir_id (str): ID of the Google Drive folder where the file will be stored.
+        file_name (str): Name of the file to be created in Drive.
+        file_text (str): Text content to upload as the file body.
+
+    Returns:
+        str: ID of the created file in Google Drive.
+    """
+    new_file_metadata = {
+        'name': file_name,
+        'mimeType': 'text/plain',
+        'parents': [output_dir_id]
+    }
+    media = MediaInMemoryUpload(file_text.encode('utf-8'), mimetype='text/plain', resumable=True)
+
+    file = drive_service.files().create(body=new_file_metadata, media_body=media, fields='id').execute()
+
+    return file.get('id')
