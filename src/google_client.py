@@ -321,3 +321,84 @@ def write_transcribe(
     file = drive_service.files().create(body=new_file_metadata, media_body=media, fields='id').execute()
 
     return file.get('id')
+
+
+def get_last_sheet_index(
+        sheet_service,
+        sheet_id: str,
+        sheet_column: str | None = 'Лист1!A:A'
+) -> int:
+    """
+    Returns the next available row index in a Google Sheets column.
+    The function reads the specified column range and finds the last non-empty row.
+    It then returns the index of the next empty row (1-based indexing).
+
+    Args:
+        sheet_service: Authenticated Google Sheets API service instance.
+        sheet_id (str): ID of the Google Spreadsheet.
+        sheet_column (str | None): Range to inspect (default is 'Лист1!A:A').
+
+    Returns:
+        int: Index of the next empty row in the column.
+    """
+    result = sheet_service.spreadsheets().values().get(
+        spreadsheetId=sheet_id,
+        range=sheet_column
+    ).execute()
+
+    rows = result.get('values', [])
+    last_filled_index = 0
+
+    if rows:
+        for index, row in enumerate(rows):
+            if row and row[0].strip() != '':
+                last_filled_index = index + 1
+
+    return last_filled_index + 1
+
+
+def write_result(
+        sheet_service,
+        sheet_id: str,
+        rows: list,
+        zone_range: str
+):
+    """
+    Writes data to a Google Sheets spreadsheet.
+
+    The data is written using the Google Sheets API `update` method with
+    `USER_ENTERED` mode, allowing Google Sheets to process values as if they
+    were entered manually by a user.
+
+    Args:
+        sheet_service: Authenticated Google Sheets API service instance.
+        sheet_id (str): ID of the target spreadsheet.
+        rows (list): Two-dimensional list of values to write.
+        zone_range (str): Target range in A1 notation.
+
+    Returns:
+        None
+
+    Note:
+        Supported range formats (replace 'Sheet1' with your worksheet name):
+
+        - 'Sheet1!A6' (recommended): Uses the specified cell as the starting
+          point and automatically expands to fit the provided data matrix.
+          Existing values within the target area will be overwritten.
+        - 'Sheet1!A6:D6': Limits updates to the specified row range. Data that
+          exceeds the defined columns may be truncated by Google Sheets.
+        - 'Sheet1!A1:F20': Updates only the specified rectangular range.
+          Useful for replacing or clearing a fixed area of the worksheet.
+    """
+    body = {
+        'values': rows
+    }
+
+    sheet_service.spreadsheets().values().update(
+        spreadsheetId=sheet_id,
+        range=zone_range,
+        body=body,
+        valueInputOption='USER_ENTERED'
+    ).execute()
+
+
