@@ -18,6 +18,8 @@ WHISPER_PROMPT = "Розмова менеджера автосервісу з к
 
 OPENAI_MODEL = "gpt-4o-mini"
 
+LOG_PATH = BASE_DIR / 'log' / 'parser.log'
+
 WORKS = [
     'Інший варіант',
     'Комплексне ТО',

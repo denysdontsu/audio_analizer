@@ -18,7 +18,8 @@ venv/
 Thumbs.db
 
 # Logs
-*.log
+log/*.log
+!log/.gitkeep
 
 # IDE / editors
 .vscode/
