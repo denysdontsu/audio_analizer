@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 def calculate_operation_score(chat_report: dict) -> float:
     """
     Calculates the final call performance score based on checklist completion
@@ -26,6 +31,7 @@ def calculate_operation_score(chat_report: dict) -> float:
 
     checklist_percent = (sum(checklist_score) / len(mandatory_keys)) * 100
     manager_score = chat_report.get('manager_score', 0)
-    operation_score = (checklist_percent * 0.4) + (manager_score * 0.6)
+    operation_score = round((checklist_percent * 0.4) + (manager_score * 0.6), 2)
 
-    return round(operation_score, 2)
+    logger.info(f'Operation score calculated: {operation_score}')
+    return operation_score
