@@ -139,7 +139,7 @@ def get_system_prompt(
     "diagnostics_offer": 0,
     "previous_work": 0,
     "appointment_made": 0,
-    "work_types": 'Інший варіант',
+    "work_types": "Інший варіант",
     "farewell": 0,
     "result_type": "Інший варіант", 
     "spare_parts": "Не обговорювалось",
