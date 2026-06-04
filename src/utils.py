@@ -1,7 +1,9 @@
 import json
+import logging
 
 from config.config import BASE_DIR
 
+logger = logging.getLogger(__name__)
 
 def parse_audio_filename(filename: str) -> dict | None:
     """
@@ -56,6 +58,9 @@ def save_chat_report(audio_name: str, data: dict):
 
     audio_name = audio_name.replace('.mp3', '.json')
     new_file_path = new_folder / f'{audio_name}'
-
-    with open(new_file_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ident=4, ensure_ascii=False)
+    try:
+        with open(new_file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    except OSError as e:
+        logger.error(f'Failed to save chat report {audio_name}: {e}')
+        raise
