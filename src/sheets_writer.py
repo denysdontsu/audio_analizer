@@ -1,5 +1,7 @@
 import logging
 
+from src.utils import parse_audio_filename
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,3 +37,61 @@ def calculate_operation_score(chat_report: dict) -> float:
 
     logger.info(f'Operation score calculated: {operation_score}')
     return operation_score
+
+
+def build_row(
+        filename: str,
+        char_report: dict,
+        transcription: str,
+        manager_score: float
+) -> list:
+    """
+    Builds a structured row for insertion into a Google Sheets table.
+
+    The function combines data from the parsed audio filename, chat report,
+    transcription text, and manager evaluation score into a single ordered list.
+    This row is intended to match a predefined spreadsheet schema.
+
+    Args:
+        filename (str): Audio filename.
+        char_report (dict): Analysis report containing structured call metrics
+            (e.g., manager_name, greeting, car details, outcomes, etc.).
+        transcription (str): Full transcription of the conversation.
+        manager_score (float): Final evaluation score assigned to the manager.
+
+    Returns:
+        list: Ordered list representing a single row for Google Sheets insertion.
+    """
+    parsed_f = parse_audio_filename(filename)
+    if not parsed_f:
+        parsed_f = {}
+
+    report = char_report or {}
+
+    row = [
+        filename,
+        parsed_f.get('date_time', ''),
+        parsed_f.get('call_type', ''),
+        '',  # No data for the column 'Тип звернення'
+        parsed_f.get('number', ''),
+        '',  # No data for the column 'Філія'
+        report.get('manager_name', 'Не представився'),
+        transcription or '',
+        report.get('greeting', ''),
+        report.get('car_body', ''),
+        report.get('car_year', ''),
+        report.get('mileage', ''),
+        report.get('diagnostics_offer', ''),
+        report.get('previous_work', ''),
+        report.get('appointment_made', ''),
+        report.get('farewell', ''),
+        report.get('work_types', 'Інший варіант'),
+        '',  # No data for the column 'Чи дотримувався всіх інструкцій з топ 100 робіт Да/Ні'
+        '',  # No data for the column 'Яких рекоменадцій менеджер не дотримувався з топ 100 робіт'
+        report.get('result_type', ''),
+        manager_score if manager_score is not None else 0.0,
+        report.get('spare_parts', ''),
+        report.get('comments', '')
+    ]
+
+    return row
