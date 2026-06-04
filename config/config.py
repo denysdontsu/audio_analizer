@@ -1,25 +1,33 @@
 from pathlib import Path
 
+# Base paths
 BASE_DIR = Path(__file__).resolve().parent
-
 TOKEN_PATH = BASE_DIR / "token.json"
 CREDENTIALS_PATH = BASE_DIR / "credentials.json"
+LOG_PATH = BASE_DIR / 'log' / 'parser.log'
 
+# Google API scopes
+SCOPES = [
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/spreadsheets"
+]
+
+# Source Google Drive resources
 SOURCE_FOLDER_ID = '1dpKG-eaFg2glOovkI4sYgLyPo3mW9Ilg'
 SOURCE_SHEET_ID = '16I6nqmaD-AjkKF7sQWWQPRn0xnVdS9HBbwBFTe-_y0U'
 
+# Target Google Drive resources
 TARGET_PARENT_ID = '1cQC4pqI8vcWs8FXHHSc-xm1FSr-UNzsM'
 TARGET_SHEET_ID = '17rTXeHpZWbsj7ChYpXE3sxdlBUTSaGH9FJIJzs7tZdk'
 
-SCOPES = ["https://www.googleapis.com/auth/drive.metadata.readonly"]
-
+# Whisper configuration
 WHISPER_MODEL = 'small'
 WHISPER_PROMPT = "Розмова менеджера автосервісу з клієнтом щодо консультації, ремонту або діагностики автомобіля."
 
+# OpenAI configuration
 OPENAI_MODEL = "gpt-4o-mini"
 
-LOG_PATH = BASE_DIR / 'log' / 'parser.log'
-
+# Available work types and dialogue outcomes for dialogue analysis
 WORKS = [
     'Інший варіант',
     'Комплексне ТО',
@@ -112,7 +120,7 @@ WORKS = [
 ]
 
 RESULT_OF_DIALOGUE = [
-    'Записи',
+    'Запис',
     'Повторна консультація',
     'Передано іншому філалу',
     'Передзвонити',
