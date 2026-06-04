@@ -4,10 +4,10 @@ import logging
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
 
-from config.config import OPENAI_MODEL
+from config.config import OPENAI_MODEL, CONFIG_DIR
 from src.prompts import get_system_prompt, get_user_prompt
 
-load_dotenv()
+load_dotenv(CONFIG_DIR / '.env')
 client = OpenAI()
 logger = logging.getLogger(__name__)
 

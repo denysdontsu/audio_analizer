@@ -1,9 +1,10 @@
 from pathlib import Path
 
 # Base paths
-BASE_DIR = Path(__file__).resolve().parent
-TOKEN_PATH = BASE_DIR / "token.json"
-CREDENTIALS_PATH = BASE_DIR / "credentials.json"
+BASE_DIR = Path(__file__).resolve().parent.parent
+CONFIG_DIR = BASE_DIR / 'config'
+TOKEN_PATH = CONFIG_DIR / 'token.json'
+CREDENTIALS_PATH = CONFIG_DIR / 'credentials.json'
 LOG_PATH = BASE_DIR / 'log' / 'parser.log'
 
 # Google API scopes
