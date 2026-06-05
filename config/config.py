@@ -23,7 +23,7 @@ TARGET_SHEET_NAME = 'Звіт прослуханих розмов'
 TARGET_AUDIO_FOLDER_NAME = 'Дзвінки'
 
 # Whisper configuration
-WHISPER_MODEL = 'small'
+WHISPER_MODEL = 'turbo'
 WHISPER_PROMPT = "Розмова менеджера автосервісу з клієнтом щодо консультації, ремонту або діагностики автомобіля."
 ALLOWED_LANGUAGES = ('uk', 'ru')
 

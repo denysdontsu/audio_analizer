@@ -61,7 +61,8 @@ def detect_language(
     try:
         audio_loaded = whisper.load_audio(str(audio))
         audio_trimmed = whisper.pad_or_trim(audio_loaded)
-        mel = whisper.log_mel_spectrogram(audio_trimmed).to(model.device)
+        n_mels = model.dims.n_mels
+        mel = whisper.log_mel_spectrogram(audio_trimmed, n_mels=n_mels).to(model.device)
 
         _, probs = model.detect_language(mel)
 
