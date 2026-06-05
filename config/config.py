@@ -15,15 +15,17 @@ SCOPES = [
 
 # Source Google Drive resources
 SOURCE_FOLDER_ID = '1dpKG-eaFg2glOovkI4sYgLyPo3mW9Ilg'
-SOURCE_SHEET_ID = '16I6nqmaD-AjkKF7sQWWQPRn0xnVdS9HBbwBFTe-_y0U'
+SOURCE_SHEET_ID = '17rTXeHpZWbsj7ChYpXE3sxdlBUTSaGH9FJIJzs7tZdk'
 
 # Target Google Drive resources
 TARGET_PARENT_ID = '1cQC4pqI8vcWs8FXHHSc-xm1FSr-UNzsM'
-TARGET_SHEET_ID = '17rTXeHpZWbsj7ChYpXE3sxdlBUTSaGH9FJIJzs7tZdk'
+TARGET_SHEET_NAME = 'Звіт прослуханих розмов'
+TARGET_AUDIO_FOLDER_NAME = 'Дзвінки'
 
 # Whisper configuration
 WHISPER_MODEL = 'small'
 WHISPER_PROMPT = "Розмова менеджера автосервісу з клієнтом щодо консультації, ремонту або діагностики автомобіля."
+ALLOWED_LANGUAGES = ('uk', 'ru')
 
 # OpenAI configuration
 OPENAI_MODEL = "gpt-4o-mini"

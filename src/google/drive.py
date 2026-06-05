@@ -179,7 +179,8 @@ def copy_sheets(
 
 def download_audio_by_id(
         drive_service,
-        audio_id: str
+        audio_id: str,
+        file_name: str
 ) -> Path:
     """
     Downloads an audio file from Google Drive into a temporary MP3 file.
@@ -187,6 +188,7 @@ def download_audio_by_id(
     Args:
         drive_service: Authorized Google Drive API service instance (v3).
         audio_id: The ID of the audio file on Google Drive.
+        file_name: Original audio file name used for logging purposes.
 
     Returns:
         Path: A pathlib.Path object pointing to the downloaded temporary file.
@@ -208,14 +210,14 @@ def download_audio_by_id(
             while not done:
                 status, done = downloader.next_chunk()
 
-        logger.info(f'Downloaded audio {audio_id} to {temp_audio_path}')
+        logger.info(f'Downloaded audio file: "{file_name}" (ID: {audio_id})')
         return temp_audio_path
 
     except HttpError as e:
-        logger.error(f'Failed to download audio {audio_id}: {e}')
+        logger.error(f'Failed to download audio "{file_name}" (ID: {audio_id}): {e}')
         raise
     except OSError as e:
-        logger.error(f'File system error while downloading audio {audio_id}: {e}')
+        logger.error(f'File system error while downloading audio {file_name} (ID: {audio_id}): {e}')
         raise
 
 
