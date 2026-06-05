@@ -159,10 +159,6 @@ def copy_sheets(
 
     Raises:
         HttpError: If the Google Drive API request fails.
-
-    Note:
-        Required by project specification. Not used in the main pipeline
-        as the target sheet is managed directly.
     """
     name = get_file_name(drive_service, source_sheets_id)
     sheets_metadata = {
@@ -266,3 +262,43 @@ def write_transcribe(
     except HttpError as e:
         logger.error(f'Failed to upload transcription for "{file_name}": {e}')
         raise
+
+
+def get_file_id_by_name(
+        drive_service,
+        parent_folder_id: str,
+        file_name: str
+) -> str | None:
+    """
+    Searches for a file or folder by name within a specified Google Drive folder
+    and returns its ID if found.
+    The function searches for a non-trashed file with the specified name
+    within the given parent folder and returns its Google Drive file ID.
+
+    Args:
+        drive_service: Authenticated Google Drive API service instance.
+        parent_folder_id (str): ID of the parent folder to search in.
+        file_name (str): Name of the target file.
+
+    Returns:
+        str | None: File ID if a matching file is found; otherwise None.
+
+    Raises:
+        HttpError: If the Google Drive API request fails.
+    """
+    try:
+        response = drive_service.files().list(
+            q=f"name = '{file_name}' and '{parent_folder_id}' in parents and trashed = false",
+            fields='files(id, name)'
+        ).execute()
+
+    except HttpError as e:
+        logger.error(f'Failed to search for file "{file_name}" in folder {parent_folder_id}: {e}')
+        raise
+
+    file = response.get('files', [])
+    if file:
+        file_id = file[0]['id']
+        logger.info(f'File "{file_name}" found with ID: {file_id}')
+        return file_id
+    return None
