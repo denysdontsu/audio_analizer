@@ -10,6 +10,10 @@ def calculate_operation_score(chat_report: dict) -> float:
     Calculates the final call performance score based on checklist completion
     and the manager's evaluation.
 
+    If the call is flagged as non-actionable or short by the AI in the
+    'comments' field (contains the "[НЕАКТУАЛЬНИЙ ДЗВІНОК]" marker),
+    the function immediately returns 0.0 to avoid mathematical bias.
+
     Scoring formula:
     - 40%: percentage of completed mandatory checklist items.
     - 60%: manager score (manager_score).
@@ -20,6 +24,12 @@ def calculate_operation_score(chat_report: dict) -> float:
     Returns:
         float: Final score in the range of 0–100, rounded to 2 decimal places.
     """
+    comments = chat_report.get('comments', '').lower()
+
+    if 'неактуальний дзвінок' in comments:
+        logger.info('Operation score calculated: 0.0 (Flagged as non-actionable call)')
+        return 0.0
+
     checklist_score = []
     boolean_keys = [
         'greeting', 'diagnostics_offer', 'previous_work',
