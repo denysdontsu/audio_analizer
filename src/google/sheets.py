@@ -2,7 +2,7 @@ import logging
 
 from googleapiclient.errors import HttpError
 
-from src.google import get_audios
+from src.google import get_files
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ def get_unprocessed_audio(
     Returns:
         list[dict]: Each dict contains 'id' and 'name' keys.
     """
-    all_target_audios = get_audios(drive_service, source_folder_id)
+    all_target_audios = get_files(drive_service, source_folder_id, 'audio/mpeg')
     all_data_from_sheet = get_data_from_sheet(sheets_service, sheets_id, sheets_range)
 
     all_processed_audio = set(cell[0] for cell in all_data_from_sheet if cell[0])

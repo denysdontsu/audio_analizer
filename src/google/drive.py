@@ -73,16 +73,22 @@ def get_file_name(
         raise
 
 
-def get_audios(
+def get_files(
         drive_service,
-        source_folder_id: str
+        source_folder_id: str,
+        mime_type_filter: str | list[str] | None = None
 ) -> list:
     """
-    Retrieves all audio files from a specific Google Drive folder.
+    Retrieves files from a Google Drive folder, optionally filtered by MIME type.
 
     Args:
         drive_service: Authorized Google Drive API service instance.
-        source_folder_id: The ID of the folder to scan for audio files.
+        source_folder_id (str): ID of the folder to scan.
+        mime_type_filter (str | list[str] | None): MIME type filter(s) to apply.
+            If a string is provided, files matching that MIME type pattern
+            are returned. If a list is provided, files matching any of the
+            specified patterns are returned. If None, all files in the folder
+            are retrieved.
 
     Returns:
         list[dict]: A list of dictionaries, where each dictionary contains
@@ -91,28 +97,38 @@ def get_audios(
     Raises:
         HttpError: If the Google Drive API request fails.
     """
-    audios = []
+    files = []
     page_token = None
+
+    query = f"'{source_folder_id}' in parents"
+
+    if mime_type_filter:
+        filters = [mime_type_filter] if isinstance(mime_type_filter, str) else mime_type_filter
+        mime_queries = [f"mimeType contains '{m}'" for m in filters]
+        query += f" and ({' or '.join(mime_queries)})"
 
     try:
         while True:
             response = drive_service.files().list(
-                q = f"mimeType contains 'audio/' and '{source_folder_id}' in parents",
+                q = query,
                 fields = 'nextPageToken, files(id, name)',
                 pageSize = 100,
                 pageToken = page_token
             ).execute()
-            audios.extend(response.get('files', []))
+            files.extend(response.get('files', []))
             page_token = response.get('nextPageToken', None)
             if not page_token:
                 break
 
     except HttpError as e:
-        logger.error(f'Failed to fetch audio files from folder {source_folder_id}: {e}')
+        logger.error(
+            f'Failed to fetch files from folder {source_folder_id} '
+            f'(mime_filter={mime_type_filter}): {e}')
         raise
 
-    logger.info(f'Found {len(audios)} audio files in folder {source_folder_id}')
-    return audios
+    logger.info(f'Found {len(files)} files in folder {source_folder_id} '
+                f'(mime_filter={mime_type_filter})')
+    return files
 
 
 def copy_audio(drive_service, audios_dir_id: str, audios: list[dict]):

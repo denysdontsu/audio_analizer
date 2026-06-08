@@ -4,7 +4,7 @@ from src.google.auth import (
 )
 from src.google.drive import (
     create_new_folder,
-    get_audios,
+    get_files,
     copy_audio,
     download_audio_by_id,
     write_transcribe,
