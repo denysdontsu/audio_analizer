@@ -6,6 +6,7 @@ CONFIG_DIR = BASE_DIR / 'config'
 TOKEN_PATH = CONFIG_DIR / 'token.json'
 CREDENTIALS_PATH = CONFIG_DIR / 'credentials.json'
 LOG_PATH = BASE_DIR / 'log' / 'parser.log'
+OUTPUT_DIR = BASE_DIR / 'output'
 
 # Google API scopes
 SCOPES = [
@@ -29,6 +30,33 @@ ALLOWED_LANGUAGES = ('uk', 'ru')
 
 # OpenAI configuration
 OPENAI_MODEL = "gpt-4o-mini"
+
+# Google sheets column schema
+SHEETS_COLUMNS_SCHEMA = [
+    "audio_id",               # Google Drive file ID
+    "date_time",              # Call date and time
+    "call_type",              # Call type (inbound/outbound)
+    "appeal_type",            # Type of appeal (currently empty)
+    "number",                 # Client's phone number
+    "branch",                 # Branch / Location (currently empty)
+    "manager_name",           # Manager's name
+    "transcription",          # Full transcription text
+    "greeting",               # Greeting check / compliance
+    "car_body",               # Car body type
+    "car_year",               # Car manufacturing year
+    "mileage",                # Car mileage
+    "diagnostics_offer",      # Diagnostics offer check
+    "previous_work",          # Previous work history / context
+    "appointment_made",       # Whether an appointment was scheduled (Yes/No)
+    "farewell",               # Farewell check / compliance
+    "work_types",             # Types of work requested
+    "followed_top_100",       # Followed all top 100 instructions check (currently empty)
+    "failed_top_100_recoms",  # Top 100 recommendations missed by manager (currently empty)
+    "result_type",            # Call outcome / result type
+    "manager_score",          # Manager evaluation score (float)
+    "spare_parts",            # Spare parts discussed
+    "comments"                # Analyst or model comments
+]
 
 # Available work types and dialogue outcomes for dialogue analysis
 WORKS = [

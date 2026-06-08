@@ -113,8 +113,8 @@ def main():
             # Analyze and build row
             chat_report = generate_chat_report(transcription)
             manager_score = calculate_operation_score(chat_report)
-            row = build_row(audio_id, audio_name, chat_report, transcription, manager_score)
-            result.append(row)
+            raw_data, sheets_row = build_row(audio_id, audio_name, chat_report, transcription, manager_score)
+            result.append(sheets_row)
 
         except Exception as e:
             logger.error(f'Failed to process audio {audio_name}: {e}')

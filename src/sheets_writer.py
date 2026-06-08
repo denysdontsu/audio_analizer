@@ -1,5 +1,6 @@
 import logging
 
+from config.config import SHEETS_COLUMNS_SCHEMA
 from src.utils import parse_audio_filename
 
 logger = logging.getLogger(__name__)
@@ -65,7 +66,7 @@ def build_row(
         char_report: dict,
         transcription: str,
         manager_score: float
-) -> list:
+) -> tuple[dict, list]:
     """
     Builds a structured row for insertion into a Google Sheets table.
 
@@ -82,38 +83,39 @@ def build_row(
         manager_score (float): Final evaluation score assigned to the manager.
 
     Returns:
-        list: Ordered list representing a single row for Google Sheets insertion.
+        tuple[dict, list]:
+            - dict: Raw flat dictionary containing all gathered fields (for cache).
+            - list: Strictly ordered list ready for Google Sheets insertion.
     """
-    parsed_f = parse_audio_filename(filename)
-    if not parsed_f:
-        parsed_f = {}
-
+    parsed_f = parse_audio_filename(filename) or {}
     report = char_report or {}
 
-    row = [
-        audio_id,
-        parsed_f.get('date_time', ''),
-        parsed_f.get('call_type', ''),
-        '',  # No data for the column 'Тип звернення'
-        parsed_f.get('number', ''),
-        '',  # No data for the column 'Філія'
-        report.get('manager_name', 'Не представився'),
-        transcription or '',
-        report.get('greeting', ''),
-        report.get('car_body', ''),
-        report.get('car_year', ''),
-        report.get('mileage', ''),
-        report.get('diagnostics_offer', ''),
-        report.get('previous_work', ''),
-        report.get('appointment_made', ''),
-        report.get('farewell', ''),
-        report.get('work_types', 'Інший варіант'),
-        '',  # No data for the column 'Чи дотримувався всіх інструкцій з топ 100 робіт Да/Ні'
-        '',  # No data for the column 'Яких рекоменадцій менеджер не дотримувався з топ 100 робіт'
-        report.get('result_type', ''),
-        manager_score if manager_score is not None else 0.0,
-        report.get('spare_parts', ''),
-        report.get('comments', '')
-    ]
+    raw_data = {
+        "audio_id": audio_id,
+        "date_time": parsed_f.get('date_time', ''),
+        "call_type": parsed_f.get('call_type', ''),
+        "appeal_type": '',  # No data for 'Тип звернення'
+        "number": parsed_f.get('number', ''),
+        "branch": '',       # No data for 'Філія'
+        "manager_name": report.get('manager_name', 'Не представився'),
+        "transcription": transcription or '',
+        "greeting": report.get('greeting', ''),
+        "car_body": report.get('car_body', ''),
+        "car_year": report.get('car_year', ''),
+        "mileage": report.get('mileage', ''),
+        "diagnostics_offer": report.get('diagnostics_offer', ''),
+        "previous_work": report.get('previous_work', ''),
+        "appointment_made": report.get('appointment_made', ''),
+        "farewell": report.get('farewell', ''),
+        "work_types": report.get('work_types', 'Інший варіант'),
+        "followed_top_100": '',       # No data for the column 'Чи дотримувався всіх інструкцій з топ 100 робіт Да/Ні'
+        "failed_top_100_recoms": '',  # No data for the column 'Яких рекоменадцій менеджер не дотримувався з топ 100 робіт'
+        "result_type": report.get('result_type', ''),
+        "manager_score": manager_score if manager_score is not None else 0.0,
+        "spare_parts": report.get('spare_parts', ''),
+        "comments": report.get('comments', '')
+    }
 
-    return row
+    sheets_row = [raw_data.get(column, '') for column in SHEETS_COLUMNS_SCHEMA]
+
+    return raw_data, sheets_row
