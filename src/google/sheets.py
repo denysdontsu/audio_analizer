@@ -65,7 +65,7 @@ def get_unprocessed_audio(
     all_data_from_sheet = get_data_from_sheet(sheets_service, sheets_id, sheets_range)
 
     all_processed_audio = set(cell[0] for cell in all_data_from_sheet if cell[0])
-    unprocessed = [item for item in all_target_audios if item['name'] not in all_processed_audio]
+    unprocessed = [item for item in all_target_audios if item['id'] not in all_processed_audio]
 
     logger.info(f'Found {len(unprocessed)} unprocessed audio files')
     return unprocessed

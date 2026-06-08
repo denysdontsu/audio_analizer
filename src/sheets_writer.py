@@ -60,6 +60,7 @@ def calculate_operation_score(chat_report: dict) -> float:
 
 
 def build_row(
+        audio_id: str,
         filename: str,
         char_report: dict,
         transcription: str,
@@ -73,6 +74,7 @@ def build_row(
     This row is intended to match a predefined spreadsheet schema.
 
     Args:
+        audio_id (str): Identifier for audio, google audio id.
         filename (str): Audio filename.
         char_report (dict): Analysis report containing structured call metrics
             (e.g., manager_name, greeting, car details, outcomes, etc.).
@@ -89,7 +91,7 @@ def build_row(
     report = char_report or {}
 
     row = [
-        filename,
+        audio_id,
         parsed_f.get('date_time', ''),
         parsed_f.get('call_type', ''),
         '',  # No data for the column 'Тип звернення'

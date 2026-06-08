@@ -113,7 +113,7 @@ def main():
             # Analyze and build row
             chat_report = generate_chat_report(transcription)
             manager_score = calculate_operation_score(chat_report)
-            row = build_row(audio_name, chat_report, transcription, manager_score)
+            row = build_row(audio_id, audio_name, chat_report, transcription, manager_score)
             result.append(row)
 
         except Exception as e:
