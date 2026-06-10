@@ -24,3 +24,7 @@ log/*.log
 # IDE / editors
 .vscode/
 .idea/
+
+# Output
+output/*
+!output/.gitkeep

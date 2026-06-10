@@ -3,6 +3,7 @@ import logging
 from googleapiclient.errors import HttpError
 
 from src.google import get_files
+from src.utils import create_name
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ def get_unprocessed_audio(
         source_folder_id: str,
         sheets_id: str,
         sheets_range: str
-) -> list[dict]:
+) -> dict[str, str]:
     """
     Compares audio files in a Google Drive folder against names listed in a Google Sheet
     and returns id and name of the files that are not present in the sheet.
@@ -59,13 +60,17 @@ def get_unprocessed_audio(
         sheets_range: The A1 notation range containing existing audio names.
 
     Returns:
-        list[dict]: Each dict contains 'id' and 'name' keys.
+        dict[str, str]: Dictionary mapping audio file ID to its original filename,
+        containing only files not yet present in the Google Sheet.
     """
     all_target_audios = get_files(drive_service, source_folder_id, 'audio/mpeg')
     all_data_from_sheet = get_data_from_sheet(sheets_service, sheets_id, sheets_range)
 
     all_processed_audio = set(cell[0] for cell in all_data_from_sheet if cell[0])
-    unprocessed = [item for item in all_target_audios if item['id'] not in all_processed_audio]
+    unprocessed = {
+        audio_id: audio_name for audio_id, audio_name in all_target_audios.items()
+        if create_name(audio_id, audio_name) not in all_processed_audio
+    }
 
     logger.info(f'Found {len(unprocessed)} unprocessed audio files')
     return unprocessed

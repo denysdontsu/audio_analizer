@@ -76,8 +76,9 @@ def get_file_name(
 def get_files(
         drive_service,
         source_folder_id: str,
-        mime_type_filter: str | list[str] | None = None
-) -> list:
+        mime_type_filter: str | list[str] | None = None,
+        by_name: bool = False
+) -> dict[str, str]:
     """
     Retrieves files from a Google Drive folder, optionally filtered by MIME type.
 
@@ -89,18 +90,19 @@ def get_files(
             are returned. If a list is provided, files matching any of the
             specified patterns are returned. If None, all files in the folder
             are retrieved.
+        by_name (bool): If True, returns dict with format {name: id}.
+                        If False, returns dict with format {id: name}.
 
     Returns:
-        list[dict]: A list of dictionaries, where each dictionary contains
-            the 'id' and 'name' of an audio file.
+        dict: Dict containing {id: name} or {name: id} depending on `by_name` flag.
 
     Raises:
         HttpError: If the Google Drive API request fails.
     """
-    files = []
+    files = {}
     page_token = None
 
-    query = f"'{source_folder_id}' in parents"
+    query = f"'{source_folder_id}' in parents and trashed = false"
 
     if mime_type_filter:
         filters = [mime_type_filter] if isinstance(mime_type_filter, str) else mime_type_filter
@@ -115,7 +117,23 @@ def get_files(
                 pageSize = 100,
                 pageToken = page_token
             ).execute()
-            files.extend(response.get('files', []))
+
+            for item in response.get('files', []):
+                file_id = item['id']
+                file_name = item['name']
+
+                if not (file_id and file_name):
+                    logger.error(f'Corrupted file object from Google API: "{item}"')
+                    continue
+
+                if by_name:
+                    if file_name in files:
+                        logger.warning(
+                            f'Duplicate filename detected in folder {source_folder_id}: "{file_name}". Old ID {files[file_name]} will be overwritten by new ID {file_id}')
+                    files[file_name] = file_id
+                else:
+                    files[file_id] = file_name
+
             page_token = response.get('nextPageToken', None)
             if not page_token:
                 break
@@ -131,30 +149,44 @@ def get_files(
     return files
 
 
-def copy_audio(drive_service, audios_dir_id: str, audios: list[dict]):
+def copy_audio(
+        drive_service,
+        audio_name: str,
+        audios_dir_id: str,
+        audio_id: str
+) -> str:
     """
     Copies a list of audio files to a destination folder.
 
     Args:
         drive_service: Authorized Google Drive API service instance.
+        audio_name: Universal audio name for the new copy ('[name]_[id].mp3').
         audios_dir_id: The ID of the destination folder where files will be saved.
-        audios: A list of dictionaries containing 'id' and 'name' of the audio files to copy.
+        audio_id: 'id' of the audio files to copy.
+
+    Returns:
+        str: The ID of the newly created copied file on Google Drive.
 
     Raises:
         HttpError: If any individual file copy operation fails.
     """
-    for audio in audios:
-        audio_metadata = {
-            'name': audio['name'],
-            'parents': [audios_dir_id]
-        }
-        try:
-            drive_service.files().copy(fileId=audio['id'], body=audio_metadata).execute()
-            logger.info(f'Copied audio: {audio["name"]}')
+    audio_metadata = {
+        'name': audio_name,
+        'parents': [audios_dir_id]
+    }
+    try:
+        new_file = drive_service.files().copy(
+            fileId=audio_id,
+            body=audio_metadata,
+            fields='id'
+        ).execute()
+        new_file_id = new_file.get('id')
+        logger.info(f'Copied audio: {audio_name}')
+        return new_file_id
 
-        except HttpError as e:
-            logger.error(f'Failed to copy audio {audio["name"]}: {e}')
-            raise
+    except HttpError as e:
+        logger.error(f'Failed to copy audio {audio_name}: {e}')
+        raise
 
 
 def copy_sheets(
@@ -261,7 +293,7 @@ def write_transcribe(
         HttpError: If the Google Drive API request fails.
     """
     new_file_metadata = {
-        'name': file_name.replace('.mp3', ''),
+        'name': file_name.replace('.mp3', '.txt'),
         'mimeType': 'text/plain',
         'parents': [output_dir_id]
     }
@@ -320,3 +352,38 @@ def get_file_id_by_name(
         logger.info(f'File "{file_name}" found with ID: {file_id}')
         return file_id
     return None
+
+
+def download_text_by_id(drive_service, file_id: str) -> str:
+    """
+    Downloads a text file from Google Drive directly into RAM
+    and returns its content as a string.
+
+    Args:
+        drive_service: Authorized Google Drive API service instance (v3).
+        file_id (str): The unique ID of the text file on Google Drive.
+
+    Returns:
+        str: The full text content of the file decoded in UTF-8.
+
+    Raises:
+        HttpError: If the Google Drive API request fails.
+    """
+    try:
+        text_stream = io.BytesIO()
+
+        request = drive_service.files().get_media(fileId=file_id)
+        downloader = MediaIoBaseDownload(text_stream, request)
+
+        done = False
+        while not done:
+            status, done = downloader.next_chunk()
+
+        text_content = text_stream.getvalue().decode('utf-8')
+
+        logger.info(f'Text file (ID: {file_id}) successfully loaded into RAM.')
+        return text_content
+
+    except HttpError as e:
+        logger.error(f'Google Drive API error while downloading text (ID: {file_id}): {e}')
+        raise

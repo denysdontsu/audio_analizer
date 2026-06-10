@@ -15,7 +15,8 @@ SCOPES = [
 ]
 
 # Source Google Drive resources
-SOURCE_FOLDER_ID = '1dpKG-eaFg2glOovkI4sYgLyPo3mW9Ilg'
+# SOURCE_FOLDER_ID = '1dpKG-eaFg2glOovkI4sYgLyPo3mW9Ilg'
+SOURCE_FOLDER_ID = '15nuQ2GHNE4bK4AfaSTNeyAs0wIgGDUn3'
 SOURCE_SHEET_ID = '17rTXeHpZWbsj7ChYpXE3sxdlBUTSaGH9FJIJzs7tZdk'
 
 # Target Google Drive resources
@@ -33,29 +34,30 @@ OPENAI_MODEL = "gpt-4o-mini"
 
 # Google sheets column schema
 SHEETS_COLUMNS_SCHEMA = [
-    "audio_id",               # Google Drive file ID
-    "date_time",              # Call date and time
-    "call_type",              # Call type (inbound/outbound)
-    "appeal_type",            # Type of appeal (currently empty)
-    "number",                 # Client's phone number
-    "branch",                 # Branch / Location (currently empty)
-    "manager_name",           # Manager's name
-    "transcription",          # Full transcription text
-    "greeting",               # Greeting check / compliance
-    "car_body",               # Car body type
-    "car_year",               # Car manufacturing year
-    "mileage",                # Car mileage
-    "diagnostics_offer",      # Diagnostics offer check
-    "previous_work",          # Previous work history / context
-    "appointment_made",       # Whether an appointment was scheduled (Yes/No)
-    "farewell",               # Farewell check / compliance
-    "work_types",             # Types of work requested
-    "followed_top_100",       # Followed all top 100 instructions check (currently empty)
-    "failed_top_100_recoms",  # Top 100 recommendations missed by manager (currently empty)
-    "result_type",            # Call outcome / result type
-    "manager_score",          # Manager evaluation score (float)
-    "spare_parts",            # Spare parts discussed
-    "comments"                # Analyst or model comments
+    'audio_id',               # Google Drive file ID
+    'audio_link',             # Link to the copied audio
+    'date_time',              # Call date and time
+    'call_type',              # Call type (inbound/outbound)
+    'appeal_type',            # Type of appeal (currently empty)
+    'number',                 # Client's phone number
+    'branch',                 # Branch / Location (currently empty)
+    'manager_name',           # Manager's name
+    'transcription',          # Full transcription text
+    'greeting',               # Greeting check / compliance
+    'car_body',               # Car body type
+    'car_year',               # Car manufacturing year
+    'mileage',                # Car mileage
+    'diagnostics_offer',      # Diagnostics offer check
+    'previous_work',          # Previous work history / context
+    'appointment_made',       # Whether an appointment was scheduled (Yes/No)
+    'farewell',               # Farewell check / compliance
+    'work_types',             # Types of work requested
+    'followed_top_100',       # Followed all top 100 instructions check (currently empty)
+    'failed_top_100_recoms',  # Top 100 recommendations missed by manager (currently empty)
+    'result_type',            # Call outcome / result type
+    'manager_score',          # Manager evaluation score (float)
+    'spare_parts',            # Spare parts discussed
+    'comments'                # Analyst or model comments
 ]
 
 # Available work types and dialogue outcomes for dialogue analysis

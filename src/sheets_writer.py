@@ -61,9 +61,10 @@ def calculate_operation_score(chat_report: dict) -> float:
 
 
 def build_row(
-        audio_id: str,
+        universal_audio_name: str,
         filename: str,
-        char_report: dict,
+        copied_audio_id: str,
+        chat_report: dict,
         transcription: str,
         manager_score: float
 ) -> tuple[dict, list]:
@@ -75,9 +76,10 @@ def build_row(
     This row is intended to match a predefined spreadsheet schema.
 
     Args:
-        audio_id (str): Identifier for audio, google audio id.
-        filename (str): Audio filename.
-        char_report (dict): Analysis report containing structured call metrics
+        universal_audio_name (str): Universal key in format {base_name}_{audio_id}{extension}.
+        filename (str): Original audio filename for parsing date/number.
+        copied_audio_id (str): Google Drive ID of the copied audio file.
+        chat_report (dict): Analysis report containing structured call metrics
             (e.g., manager_name, greeting, car details, outcomes, etc.).
         transcription (str): Full transcription of the conversation.
         manager_score (float): Final evaluation score assigned to the manager.
@@ -88,10 +90,11 @@ def build_row(
             - list: Strictly ordered list ready for Google Sheets insertion.
     """
     parsed_f = parse_audio_filename(filename) or {}
-    report = char_report or {}
+    report = chat_report or {}
 
     raw_data = {
-        "audio_id": audio_id,
+        "audio_id": universal_audio_name,
+        "audio_link": f'https://drive.google.com/file/d/{copied_audio_id}/view?usp=share_link',
         "date_time": parsed_f.get('date_time', ''),
         "call_type": parsed_f.get('call_type', ''),
         "appeal_type": '',  # No data for 'Тип звернення'
@@ -116,6 +119,10 @@ def build_row(
         "comments": report.get('comments', '')
     }
 
-    sheets_row = [raw_data.get(column, '') for column in SHEETS_COLUMNS_SCHEMA]
+    sheets_row = [
+        f'=HYPERLINK("{raw_data["audio_link"]}"; "Прослухати")' if col == "audio_link"
+        else raw_data.get(col, '')
+        for col in SHEETS_COLUMNS_SCHEMA
+    ]
 
     return raw_data, sheets_row
