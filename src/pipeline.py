@@ -128,6 +128,7 @@ def _process_from_cache(
     """
     Builds a Sheets row from locally cached report data.
     If the audio file is missing from Google Drive, re-copies it and updates the cache.
+    If the transcription .txt file is missing from Google Drive, re-copies it.
 
     Args:
         drive_service: Authorized Google Drive API service instance.
@@ -152,6 +153,15 @@ def _process_from_cache(
         )
         cached_data['audio_link'] = f'https://drive.google.com/file/d/{copied_id}/view?usp=share_link'
         save_local_cache(cached_data)
+
+    transcription_id = drive_inventory.get(universal_name.replace('.mp3', '.txt'))
+    if not transcription_id:
+        write_transcribe(
+            drive_service=drive_service,
+            output_dir_id=audio_folder_id,
+            file_name=universal_name,
+            file_text=cached_data['transcription']
+        )
 
     return [
         f'=HYPERLINK("{cached_data["audio_link"]}"; "Прослухати")' if col == "audio_link"
