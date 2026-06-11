@@ -48,6 +48,30 @@ Source Google Drive Folder
 
 ---
 
+## Caching & Deduplication
+
+Each processed call is saved locally as a `.json` file in `output/` using the 
+universal audio ID as the filename. On every run, the pipeline checks this cache 
+before processing:
+
+**If a local `.json` cache exists:**
+- Builds the Sheets row directly from cached data — no API calls needed
+- If the audio file is missing from Drive → re-copies it and updates the cache
+- If the `.txt` transcription is missing from Drive → re-uploads it from cache
+
+**If no cache exists (new file):**
+- Checks Drive inventory for existing `.txt` transcription
+- If `.txt` exists → downloads and reuses it, skips Whisper transcription
+- If no `.txt` → runs full Whisper transcription and uploads result
+- Runs GPT analysis → saves result to local `.json` cache
+
+This means:
+- Re-running the pipeline never re-processes already analyzed calls
+- Deleted Sheets rows are safely recovered from cache on next run
+- Whisper is only called when truly needed
+
+---
+
 ## Project Structure
 
 ```
@@ -448,10 +472,6 @@ If a processed row was manually deleted from the sheet, the pipeline will re-pro
 
 ## Roadmap
 
-- [ ] **Duplicate audio detection** — before copying, check if an audio file already exists in the target folder to prevent duplicates caused by manual row deletion in the sheet.
-- [ ] **`.txt`-based processing check** — verify whether a transcription `.txt` file already exists next to the audio before re-transcribing, as an additional deduplication layer independent of Google Sheets.
-- [ ] **JSON report persistence** — save each AI analysis result as a local `.json` file (`src/utils.py` already has a `save_chat_report()` stub). Planned as both a backup and a way to reuse analysis results without re-calling the API.
-- [ ] **Red-flag highlighting in Sheets** — automatic conditional formatting to highlight rows where manager score is below threshold, for faster quality control review.
 - [ ] **Upgrade default analysis model** — replace `gpt-4o-mini` with a more capable model (e.g. Claude Sonnet) for production use.
 
 ---
