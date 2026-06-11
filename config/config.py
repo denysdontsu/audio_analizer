@@ -33,6 +33,7 @@ ALLOWED_LANGUAGES = ('uk', 'ru')
 OPENAI_MODEL = "gpt-4o-mini"
 
 # Google sheets column schema
+SHEETS_DATA_RANGE = 'Лист1!A3:A'
 SHEETS_COLUMNS_SCHEMA = [
     'audio_id',               # Google Drive file ID
     'audio_link',             # Link to the copied audio

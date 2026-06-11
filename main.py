@@ -1,8 +1,14 @@
 import logging
 
-from config.config import SOURCE_FOLDER_ID
-from src.google import get_drive_service, get_sheets_service, get_files, get_unprocessed_audio, get_last_sheet_index, \
+from config.config import SOURCE_FOLDER_ID, SHEETS_DATA_RANGE
+from src.google import (
+    get_drive_service,
+    get_sheets_service,
+    get_files,
+    get_unprocessed_audio,
+    get_last_sheet_index,
     write_result
+)
 from src.pipeline import setup_workspace, process_single_audio
 from src.transcriber import get_whisper_model
 
@@ -35,7 +41,7 @@ def main():
         sheets_service,
         SOURCE_FOLDER_ID,
         copied_sheet_id,
-        'Лист1!A3:A'
+        SHEETS_DATA_RANGE
     )
 
     if not unprocessed_audio:
