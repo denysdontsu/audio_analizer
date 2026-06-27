@@ -97,9 +97,7 @@ def build_row(
         "audio_link": f'https://drive.google.com/file/d/{copied_audio_id}/view?usp=share_link',
         "date_time": parsed_f.get('date_time', ''),
         "call_type": parsed_f.get('call_type', ''),
-        "appeal_type": '',  # No data for 'Тип звернення'
         "number": parsed_f.get('number', ''),
-        "branch": '',       # No data for 'Філія'
         "manager_name": report.get('manager_name', 'Не представився'),
         "transcription": transcription or '',
         "greeting": report.get('greeting', ''),
@@ -111,8 +109,6 @@ def build_row(
         "appointment_made": report.get('appointment_made', ''),
         "farewell": report.get('farewell', ''),
         "work_types": report.get('work_types', 'Інший варіант'),
-        "followed_top_100": '',       # No data for the column 'Чи дотримувався всіх інструкцій з топ 100 робіт Да/Ні'
-        "failed_top_100_recoms": '',  # No data for the column 'Яких рекоменадцій менеджер не дотримувався з топ 100 робіт'
         "result_type": report.get('result_type', ''),
         "manager_score": manager_score if manager_score is not None else 0.0,
         "spare_parts": report.get('spare_parts', ''),
