@@ -15,12 +15,11 @@ SCOPES = [
 ]
 
 # Source Google Drive resources
-# SOURCE_FOLDER_ID = '1dpKG-eaFg2glOovkI4sYgLyPo3mW9Ilg'
-SOURCE_FOLDER_ID = '15nuQ2GHNE4bK4AfaSTNeyAs0wIgGDUn3'
-SOURCE_SHEET_ID = '17rTXeHpZWbsj7ChYpXE3sxdlBUTSaGH9FJIJzs7tZdk'
+SOURCE_FOLDER_ID = 'SOURCE_FOLDER_ID'
+SOURCE_SHEET_ID = '10a_RMc8u6iZxgjM4--A2HVo_i1uQo_pRqYXLmzFRtbU'
 
 # Target Google Drive resources
-TARGET_PARENT_ID = '1cQC4pqI8vcWs8FXHHSc-xm1FSr-UNzsM'
+TARGET_PARENT_ID = 'YOUR_TARGET_FOLDER_ID'
 TARGET_SHEET_NAME = 'Звіт прослуханих розмов'
 TARGET_AUDIO_FOLDER_NAME = 'Дзвінки'
 
